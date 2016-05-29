@@ -109,6 +109,8 @@ SQLite comes as standard with Python and does not require a separate server proc
 
 Using your favorite text editor, open the config.py module for our blog project (~/projects/blog/app/config.py). We are going to add a SQLAlchemy-specific setting to instruct Flask-SQLAlchemy how to connect to our database. The new lines are highlighted in the following:  
 
+使用你喜欢的文本编辑器，然后打开博客项目（~/projects/blog/app/config.py）中的config.py模块。我们要添加一个SQLAlchemy专用的设置来吩咐Flask-SQLAlchemy如何对数据库进行连接。如下是要插入的代码：  
+
 ```python
 import os
 
@@ -121,11 +123,15 @@ class Configuration(object):
 
 The SQLALCHEMY_DATABASE_URI comprises the following parts:  
 
+SQLALCHEMY_DATABASE_URI由下列部分组成：  
+
 ```
 dialect+driver://username:password@host:port/database
 ```
 
 Because SQLite databases are stored in local files, the only information we need to provide is the path to the database file. On the other hand, if you wanted to connect to PostgreSQL running locally, your URI might look something like this:  
+
+因为SQLite数据被存储在本地，所以我们唯一需要提供的信心就是数据库文件的路径。换句话说，如果你想要连接本地正在运行的PostgreSQL，
 
 ```
 postgresql://postgres:secretpassword@localhost:5432/blog_db
@@ -135,7 +141,12 @@ postgresql://postgres:secretpassword@localhost:5432/blog_db
 >#### Note
 >If you're having trouble connecting to your database, try consulting the SQLAlchemy documentation on database URIs: http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html.
 
+>#### 注释
+>如果有连接数据的问题，那么请尝试查阅SQLAlchemy文档中的数据库部分：http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html.
+
 Now that we've specified how to connect to the database, let's create the object responsible for actually managing our database connections. This object is provided by the Flask-SQLAlchemy extension and is conveniently named SQLAlchemy. Open app.py and make the following additions:  
+
+现在，我们已经说明了如何连接到数据库，让我们创建
 
 ```python
 from flask import Flask
@@ -150,12 +161,20 @@ db = SQLAlchemy(app)
 
 These changes instruct our Flask app, and in turn SQLAlchemy, how to communicate with our application's database. The next step will be to create a table for storing blog entries and, to do so, we will create our first model.  
 
+这些变更构建了Flask应用，以及如何与数据库通信的SQLAlchemy。接下来要创建的一个排列博文目录的表，所以，我们创建我们的第一个模型。  
+
 ## Creating the Entry model 创建模型Entry
 
 A model is the data representation of a table of data that we want to store in the database. These models have attributes called columns that represent the data items in the data. So, if we were creating a Person model, we might have columns for storing the first and last name, date of birth, home address, hair color, and so on. Since we are interested in creating a model to represent blog entries, we will have columns for things like the title and body content.  
 
+模型是一张我们希望存储在数据库中数据的表的数据表现。这些模型拥有称作列的属性，它们代表了数据中的项。所以，如果我们创建一个Person模型，我们可以
+
 >#### Note
->Note that we don't say a People model or Entries model – models are singular even though they commonly represent many different objects.
+>Note that we don't say a People model or Entries model – models are singular even though they commonly represent many different objects. 注释
+
+
+>#### 注释
+>
 
 With SQLAlchemy, creating a model is as easy as defining a class and specifying a number of attributes assigned to that class. Let's start with a very basic model for our blog entries. Create a new file named models.py in the blog project's app/ directory and enter the following code:  
 
@@ -254,9 +273,11 @@ Execute the script from inside the app/ directory. Make sure the virtualenv is a
 >#### Note
 >If you encounter errors while creating the database tables, make sure you are in the app directory, with the virtualenv activated, when you run the script. Next, ensure that there are no typos in your SQLALCHEMY_DATABASE_URI setting.
 
-### Working with the Entry model
+### Working with the Entry model 使用Entry模型
 
 Let's experiment with our new Entry model by saving a few blog entries. We will be doing this from the Python interactive shell. At this stage let's install IPython, a sophisticated shell with features such as tab-completion (that the default Python shell lacks).  
+
+我们来通过保存几篇博文来体验下Entry模型。我们从Python的交互式shell中执行操作。本阶段我们来安装IPyton，一个
 
 ```shell
 (blog) $ pip install ipython
@@ -295,6 +316,8 @@ In []: first_entry = Entry(title='First entry', body='This is the body of my fir
 
 In order to save our first entry, we will to add it to the database session. The session is simply an object that represents our actions on the database. Even after adding it to the session, it will not be saved to the database yet. In order to save the entry to the database, we need to commit our session:  
 
+为了保存我们的第一篇文章，我们要添加它到数据库会话中。这个
+
 ```shell
 In []: db.session.add(first_entry)
 In []: first_entry.id is None  # No primary key, the entry has not been saved.
@@ -308,14 +331,19 @@ Out[]: datetime.datetime(2014, 1, 25, 9, 49, 53, 1337)
 
 As you can see from the preceding code examples, once we commit the session, a unique id will be assigned to our first entry and the created_timestamp will be set to the current time. Congratulations, you've created your first blog entry!  
 
+如你在上面代码中所看的那样，一旦我们提交了会话，
+
 Try adding a few more on your own. You can add multiple entry objects to the same session before committing, so give that a try as well.  
 
->#### Note
+尝试着自己去添加更多内容。你可以在提交之前对相同的会话添加多个entry对象，所以请你多多尝试。  
+
+>#### Note 注释
 >At any point while you are experimenting, feel free to delete the blog.db file and re-run the create_db.py script to start over with a fresh database.
 
-### Making changes to an existing entry
+### Making changes to an existing entry 对现有文章的变更
 
 In order to make changes to an existing Entry, simply make your edits and then commit. Let's retrieve our Entry using the id that was returned to us earlier, make some changes, and commit it. SQLAlchemy will know that it needs to be updated. Here is how you might make edits to the first entry:  
+
 
 ```shell
 In []: first_entry = Entry.query.get(1)
@@ -325,9 +353,11 @@ In []: db.session.commit()
 
 And just like that your changes are saved.  
 
-### Deleting an entry
+### Deleting an entry 删除文章
 
 Deleting an entry is just as easy as creating one. Instead of calling db.session.add, we will call db.session.delete and pass in the Entry instance that we wish to remove.  
+
+删除一篇文章和创建文章一样简单。和调用db.session.add相反，我们调用db.session.delete，然后传递我们希望移除的Entry实例。  
 
 ```shell
 In []: bad_entry = Entry(title='bad entry', body='This is a lousy entry.')
@@ -337,12 +367,16 @@ In []: db.session.delete(bad_entry)
 In []: db.session.commit()  # The bad entry is now deleted from the database.
 ```
 
-## Retrieving blog entries
+## Retrieving blog entries 重新取回博文
 While creating, updating, and deleting are fairly straightforward operations, the real fun starts when we look at ways to retrieve our entries. We'll start with the basics, and then work our way up to more interesting queries.  
+
+尽管创建、更新和删除都是相当傻瓜式的操作，但在我们浏览重新取回博文时才能真正感觉到乐趣。我们从基础开始，然后运用更为有趣的查询。  
 
 We will use a special attribute on our model class to make queries: Entry.query. This attribute exposes a variety of APIs for working with the collection of entries in the database.  
 
 Let's simply retrieve a list of all the entries in the Entry table:  
+
+我们来简单的重新去取回Entry表中的所有博文列表：  
 
 ```shell
 In []: entries = Entry.query.all()
@@ -351,6 +385,8 @@ Out[]: [<Entry u'First entry'>, <Entry u'Second entry'>, <Entry u'Third entry'>,
 ```
 
 As you can see, in this example the query returns a list of Entry instances that we created. When no explicit ordering is specified, the entries are returned to us in an arbitrary order chosen by the database. Let's specify that we want the entries returned to us in an alphabetical order by title:  
+
+如你所见，这个例子中查询操作返回了一个我们创建的Entry实例的列表。
 
 ```shell
 In []: Entry.query.order_by(Entry.title.asc()).all()
@@ -372,7 +408,7 @@ Out []:
  <Entry: First entry>]
 ```
 
-### Filtering the list of entries
+### Filtering the list of entries 过滤文章列表
 
 It is very useful to be able to retrieve the entire collection of blog entries, but what if we want to filter the list? We could always retrieve the entire collection and then filter it in Python using a loop, but that would be very inefficient. Instead we will rely on the database to do the filtering for us, and simply specify the conditions for which entries should be returned. In the following example, we will specify that we want to filter by entries where the title equals 'First entry'.  
 
@@ -399,21 +435,25 @@ Out[]: <Entry u'First entry'>
 
 Notice how previously .all() returned a list containing the object, whereas .first() returned just the object itself.  
 
-### Special lookups
+### Special lookups 特殊查询
 
 In the previous example we tested for equality, but there are many other types of lookups possible. In the following table, we have listed some that you may find useful. A complete list can be found in the SQLAlchemy documentation.  
 
 table:omit  
 
-### Combining expressions
+### Combining expressions 联合表达式
 
 The expressions listed in the preceding table can be combined using bitwise operators to produce arbitrarily complex expressions. Let's say we want to retrieve all blog entries that have the word `Python` or `Flask` in the title. To accomplish this, we will create two `contains` expressions, then combine them using Python's bitwise OR operator, which is a pipe `|` character, unlike a lot of other languages that use a double pipe `||` character:  
+
+上面表中列出的表达式可以使用比特位运算符来生成具有任意复杂度的表达式。假如我们想要重新取回所有标题中含有`Python` or `Flask`的博客文章。要完成这个操作，我们创建两个“包含”表达式，然后使用Python的OR比特位运算符来合并它们，这里使用的管道符号`|`，而不像其他很多语言那样，使用一对儿管道符号`||` ：  
 
 ```python
 Entry.query.filter(Entry.title.contains('Python') | Entry.title.contains('Flask'))
 ```
 
 Using bitwise operators, we can come up with some pretty complex expressions. Try to figure out what the following example is asking for:  
+
+使用比特位运算符，我们可以拥有更多优雅的复杂表达式。请试着指出下面例子到底在查询什么内容？：  
 
 ```python
 Entry.query.filter(
@@ -423,6 +463,8 @@ Entry.query.filter(
 ```
 
 As you probably guessed, this query returns all entries where the title contains either Python or Flask, and that were created within the last 30 days. We are using Python's bitwise OR and AND operators to combine the sub-expressions. For any query you produce, you can view the generated SQL by printing the query as follows:  
+
+你可能猜到了，这个查询返回了所有标题中含有Python或者是含有Flask的全部文章，而且是过去30天之内创建的文章。我们使用Python的比特位运算符OR合AND来联合子表达式。
 
 ```
 In []: query = Entry.query.filter(
@@ -437,10 +479,14 @@ WHERE (
     (entry.title LIKE '%%' || :title_1 || '%%') OR (entry.title LIKE '%%' || :title_2 || '%%') ) AND entry.created_timestamp > :created_timestamp_1
 ```
 
-#### Negation
+#### Negation 否定式
 There is one more piece to discuss, which is negation. If we wanted to get a list of all blog entries that did not contain Python or Flask in the title, how would we do that? SQLAlchemy provides two ways to create these types of expressions, using either Python's unary negation operator (~) or by calling db.not_(). This is how you would construct this query with SQLAlchemy:  
 
+这里需啊详细讨论下，什么是否定式。假如我们想要获得
+
 Using unary negation:  
+
+使用一元否定式；  
 
 ```shell
 In []: Entry.query.filter(~(Entry.title.contains('Python') | Entry.title.contains('Flask')))
@@ -448,26 +494,32 @@ In []: Entry.query.filter(~(Entry.title.contains('Python') | Entry.title.contain
 
 Using db.not_():  
 
+使用db.not_()：  
+
 ```shell
 In []: Entry.query.filter(db.not_(Entry.title.contains('Python') | Entry.title.contains('Flask')))
 ```
 
-#### Operator precedence
+#### Operator precedence 优先运算符
 Not all operations are considered equal to the Python interpreter. This is like in math class, where we learned that expressions such as `2 + 3 * 4` are equal to 14 and not 20, because the multiplication operation occurs first. In Python, bitwise operators all have a higher precedence than things such as equality tests, so this means that, when you are building your query expression, you have to pay attention to the parentheses. Let's look at some example Python expressions and see the corresponding query:  
 
 table:omit  
 
 If you find yourself struggling with operator precedence, it's a safe bet to put parentheses around any comparison that uses ==, !=, <, <=, >, and >=.  
 
-## Building a tagging system
+## Building a tagging system 构建标签系统
 
 Tags are a lightweight taxonomy system that is perfect for blogs. Tags allow you to apply multiple categories to a blog post and allow multiple posts to be related to one another outside their category. On my own blog I use tags to organize the posts, so that people interested in reading my posts about Flask need only look under the "Flask" tag and find all the relevant posts. As per the spec that we discussed in Chapter 1, Creating Your First Flask Application, each blog entry can have as few or as many tags as you want, so a post about Flask might be tagged with both Flask and Python. Similarly, each tag (for example, Python) can have multiple entries associated with it. In database parlance, this is called a many-to-many relationship.  
+
+标签是一个轻量级的非常适合博客的分类系统。标签允许你对博客文章应用多个分类，还运训多篇文章关联到另外一个外部分类。在我自己的博客上，我使用标签来组织文章，所以
 
 In order to model this, we must first create a model to store tags. This model will store the names of tags we use, so after we've added a few tags the table might look something like the following one:  
 
 table:omit  
 
-Let's open models.py and add a definition for the Tag model. Add the following class at the end of the file, below the Entry class:  
+Let's open `models.py` and add a definition for the Tag model. Add the following class at the end of the file, below the Entry class:  
+
+我们打开models.py，并定义Tag模型。将下面的类添加到Entry类的末尾：  
 
 ```python
 class Tag(db.Model):
@@ -552,7 +604,7 @@ tags = db.relationship('Tag', secondary=entry_tags,
 
 We are setting the tags attribute of the `Entry` class equal to the return value of the db.relationship function. The first two arguments, `'Tag'` and `secondary=entry_tags`, instruct SQLAlchemy that we are going to be querying the Tag model via the `entry_tags` table. The third argument creates a back-reference, allowing us to go from the Tag model back to the associated list of blog entries. By specifying lazy='dynamic', we instruct SQLAlchemy that, instead of it loading all the associated entries for us, we want a Query object instead.  
 
-### Adding and removing tags from entries
+### Adding and removing tags from entries 从文章中添加和删除标签
 
 Let's use the IPython shell to see how this works. Close your current shell and re-run the scripts/create_db.py script. This step is necessary since we added two new tables. Now re-open IPython:  
 
@@ -635,22 +687,29 @@ Out[]: <Entry Flask entry>
 >The SQLAlchemy documentation contains an excellent overview of the various values that you can use for the lazy argument. You can find them online at http://docs.sqlalchemy.org/en/rel_0_9/orm/relationships.html#sqlalchemy.orm.relationship.params.lazy
 
  
-## Making changes to the schema
+## Making changes to the schema 对表应用改变
 
 The final topic we will discuss in this chapter is how to make modifications to an existing Model definition. From the project specification, we know we would like to be able to save drafts of our blog entries. Right now we don't have any way to tell whether an entry is a draft or not, so we will need to add a column that lets us store the status of our entry. Unfortunately, while db.create_all() works perfectly for creating tables, it will not automatically modify an existing table; to do this we need to use migrations.  
 
-### Adding Flask-Migrate to our project
+本章钟最后要讨论的话题是如何对已有模型定义进行修改。从项目中的详述中，我们得知我们能够保存博客文章的草稿。
+
+### Adding Flask-Migrate to our project 对项目添加Flask-Migrate
 
 We will use Flask-Migrate to help us automatically update our database whenever we change the schema. In the blog virtualenv, install Flask-Migrate using pip:  
+
+我们使用Flask-Migrate来帮助我们在改变表时自动地更新数据。请在虚拟环境blog中，使用pip安装Flask-Migrate：  
 
 ```shell
 (blog) $ pip install flask-migrate
 ```
 
->#### Note
+>#### Note 注释
 >The author of SQLAlchemy has a project called alembic; Flask-Migrate makes use of this and integrates it with Flask directly, making things easier.
+>SQLAlchemy的作者拥有一个称作alembic的项目；Flask-Migrate使用了它并直接和Flask进行了集成，一遍易于使用。  
 
 Next we will add a Migrate helper to our app. We will also create a script manager for our app. The script manager allows us to execute special commands within the context of our app, directly from the command-line. We will be using the script manager to execute the migrate command. Open app.py and make the following additions:  
+
+接下来我们对应用添加一个迁移助手。我们还对应用创建了一个脚本管理器。脚本管理器允许我们在应用的上下文中从命令行执行特殊的命令。我们会使用这个脚本管理器来执行迁移命令。打开app.py然后添加如下内容：  
 
 ```python
 from flask import Flask
@@ -671,6 +730,8 @@ manager.add_command('db', MigrateCommand)
 
 In order to use the manager, we will add a new file named manage.py along with app.py. Add the following code to manage.py:  
 
+为了使用管理器，我们在app.py旁边添加了一个新的称作 manage.py的文件。请添加下面的代码manage.py：  
+
 ```python
 from app import manager
 from main import *
@@ -681,12 +742,16 @@ if __name__ == '__main__':
 
 This looks very similar to main.py, the key difference being, instead of calling app.run(), we are calling manager.run().  
 
->#### Note
+看上去和main.py很像，
+
+>#### Note 注释
 >Django has a similar, although auto-generated, manage.py file that serves a similar function.
 
-### Creating the initial migration
+### Creating the initial migration 创建首次迁移
 
 Before we can start changing our schema, we need to create a record of its current state. To do this, run the following commands from inside your blog's app directory. The first command will create a migrations directory inside the app folder that will track the changes we make to our schema. The second command db migrate will create a snapshot of our current schema so that future changes can be compared to it.  
+
+在开始对表应用改变之前，我们需要创建一个包含当前状态的记录。要完成这项操作，请在blog应用目录中运行下面的命令。
 
 ```shell
 (blog) $ python manage.py db init
@@ -701,6 +766,8 @@ INFO  [alembic.migration] Will assume non-transactional DDL.
 
 Finally, we will run db upgrade to run the migration that will indicate to the migration system that everything is up-to-date:  
 
+最后，我们运行db upgrade以运行向迁移系统标示更新所有内容的迁移动作：  
+
 ```shell
 (blog) $ python manage.py db upgrade
 INFO  [alembic.migration] Context impl SQLiteImpl.
@@ -708,7 +775,7 @@ INFO  [alembic.migration] Will assume non-transactional DDL.
 INFO  [alembic.migration] Running upgrade None -> 535133f91f00, empty message
 ```
 
-### Adding a status column
+### Adding a status column 添加状态列
 
 Now that we have a snapshot of our current schema, we can start making changes. We will be adding a new column, named status, that will store an integer value corresponding to a particular status. Although there are only two statuses at the moment (PUBLIC and DRAFT), using an integer instead of a Boolean gives us the option to easily add more statuses in the future. Open models.py and make the following additions to the Entry model:  
 
@@ -739,6 +806,8 @@ es/projects/blog/app/migrations/versions/2c8e81936cad_.py ... done
 
 Because we have blog entries in the database, we need to make a small modification to the auto-generated migration to ensure the statuses for the existing entries are initialized to the proper value. To do this, open up the migration file (mine is migrations/versions/2c8e81936cad_.py) and change the following line:  
 
+引文，在数据库中我们拥有博客文章，我们需要
+
 ```python
 op.add_column('entry', sa.Column('status', sa.SmallInteger(), nullable=True))
 ```
@@ -751,6 +820,8 @@ op.add_column('entry', sa.Column('status', sa.SmallInteger(), server_default='0'
 
 Finally, run db upgrade to run the migration and create the status column.  
 
+最后，
+
 ```shell
 (blog) $ python manage.py db upgrade
 INFO  [alembic.migration] Context impl SQLiteImpl.
@@ -759,6 +830,8 @@ INFO  [alembic.migration] Running upgrade 535133f91f00 -> 2c8e81936cad, empty me
 ```
 
 Congratulations, your `Entry` model now has a status field!  
+
+恭喜了，你的`Entry`模型现在拥有了status字段！
 
  
 ## Summary

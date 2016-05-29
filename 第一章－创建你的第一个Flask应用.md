@@ -213,7 +213,7 @@ if __name__ == '__main__':
     app.run(debug=True)
 ```
 
-### Routes and requests
+### Routes and requests 路由和请求
 
 Right now our Flask app isn't much fun, so let's look at the different ways in which we can add more interesting behavior to our web app. One common way is to add responsive behavior so that our app will look at values in the URL and handle them. Let's add a new route to our Hello Flask app called hello. This new route will display a greeting to the person whose name appears in the URL:   
 
