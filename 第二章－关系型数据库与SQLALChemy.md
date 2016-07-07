@@ -15,7 +15,7 @@ In this chapter, we shall:
 - Build a tagging system for blog entries
 - Create schema migrations using Alembic
 
-- 目前使用关系型数据库的优点简短浏览
+- 使用关系型数据库的现有优点简要概述
 - 介绍SQLAlchemy，Python SQL 工具套件以及对象关系映射
 - 配置Flask应用以使用SQLALchemy
 - 编写一个模型类以表示博客文章
@@ -54,7 +54,7 @@ Relational databases and SQL, the programming language used with relational data
 
 SQLAlchemy is an extremely powerful library for working with relational databases in Python. Instead of writing SQL queries by hand, we can use normal Python objects to represent database tables and execute queries. There are a number of benefits to this approach, as follows:  
 
-SQLAlchemy是一个极其强大的库
+在Python中SQLAlchemy是一个极其强大的能够和关系型数据库交互的库。与手工编写SQL查询相反，我们可以使用普通Python对象来表示数据库表，以及执行查询。如下，该方法有很多的优点：  
 
 - Your application can be developed entirely in Python.
 - Subtle differences between database engines are abstracted away. This allows you to do things just like a lightweight database, for instance, use SQLite for local development and testing, then switch to the databases designed for high loads (such as PostgreSQL) in production.
@@ -65,7 +65,11 @@ SQLAlchemy can help you avoid SQL injection vulnerabilities.
 - Excellent library support: As you will see in later chapters, there are a multitude of useful libraries that can work directly with your SQLAlchemy models to provide things such as maintenance interfaces and RESTful APIs.
 
 - 你的应用可以完全使用Python开发。
-- 
+- 数据库引擎之间的细微差被抽象了出来。它允许你像轻量级数据库那样执行操作，例如，为本地开发和测试使用SQLite，然后切换到生产环境中的拥有高负载设计的数据库（比如PostgreSQL）。
+- 数据错误通常会减少，因为在应用和数据库服务器之间存在两个层级：Python解释器自身和有着良好设计的API和自有层次的错误检查的SQLAlchemy。
+- 你的数据库代码变得更加高效，要感谢SQLAlchemy的单元协作模型，它检查了对数据库的非必要往返开销。SQLAlchemy还拥有被称作贪婪载入的高效率的关联对象预获取工具。  
+- Object Relational Mapping (ORM)是你的代码更具有可维护性，
+- 良好的库支持：就像你在稍后章节所见到的，有大量的可以直接作用于SQLAlchemy模型以提供诸如维护接口和RESTful API的有用的库。
 
 I hope you're excited after reading this list. If all the items in this list don't make sense to you right now, don't worry. As you work through this chapter and the subsequent ones, these benefits will become more apparent and meaningful.  
 
@@ -112,7 +116,7 @@ $ python
 
 SQLAlchemy works very well with Flask on its own, but the author of Flask has released a special Flask extension named Flask-SQLAlchemy that provides helpers with many common tasks, and can save us from having to re-invent the wheel later on. Let's use pip to install this extension:  
 
-SQLAlchemy
+SQLAlchemy自己能够和Flask非常好结合，但是Flask的作者发行了一个特殊的称作Flask-SQLAlchemy的特殊Flask扩展，它提供了很多常见任务的辅助，而且免去了我们之后必须重复造轮子的问题。我们使用pip安装这个扩展：  
 
 ```shell
 (blog) $ pip install flask-sqlalchemy
@@ -122,17 +126,19 @@ Successfully installed flask-sqlalchemy
 
 Flask provides a standard interface for the developers who are interested in building extensions. As the framework has grown in popularity, the number of high-quality extensions has increased. If you'd like to take a look at some of the more popular extensions, there is a curated list available on the Flask project website at http://flask.pocoo.org/extensions/.  
 
-Flask为有兴趣构建扩展的开发者提供了一个标准接口。随着框架流行度的增长，很多高质量的扩展得以增加。如果你希望看一看一些更为流行的扩展，在Flask项目网站上有一个准确的列表 http://flask.pocoo.org/extensions/ 。   
+Flask为有兴趣构建扩展的开发者提供了一个标准接口。随着框架流行度的增长，很多高质量的扩展得以增加。如果你希望看一看一些更为流行的扩展，在Flask项目网站上有一个准确的列表 http://flask.pocoo.org/extensions/ 。  
 
 ### Choosing a database engine 选择数据引擎
 
 SQLAlchemy supports a multitude of popular database dialects, including SQLite, MySQL, and PostgreSQL. Depending on the database you would like to use, you may need to install an additional Python package containing a database driver. Listed next are several popular databases supported by SQLAlchemy and the corresponding pip-installable driver. Some databases have multiple driver options, so I have listed the most popular one first.  
 
-SQLAlchemy支持许多的流行数据库分支，包括SQLite, MySQL, 和 PostgreSQL。
+SQLAlchemy支持许多的流行数据库分支，包括SQLite, MySQL, 和 PostgreSQL。根据你所选择使用的数据库不同，你或许需要安装额外的包含了数据库驱动的Python包。接下来列出了SQLAlchemy支持的多个流行的数据库，以及对应的可以使用pip安装的驱动。部分数据库有多个驱动选择，所以首先列出了对流行的那个。  
 
 table:omit  
 
 SQLite comes as standard with Python and does not require a separate server process, so it is perfect for getting up-and-running quickly. For simplicity in the examples that follow, I will demonstrate how to configure the blog app for use with SQLite. If you have a different database in mind that you would like to use for the blog project, feel free to use `pip` to install the necessary driver package at this time.  
+
+SQLite是作为Python标准出现的，而且不要求独立的服务器进程，所以在快速即开即用方面非常完美。为了简化下面的例子，我会说明如何使用SQLite配置blog引用。如果你有在思想上希望对blog项目使用的不同数据库，
 
 ### Connecting to the database 连接数据
 
@@ -160,12 +166,11 @@ dialect+driver://username:password@host:port/database
 
 Because SQLite databases are stored in local files, the only information we need to provide is the path to the database file. On the other hand, if you wanted to connect to PostgreSQL running locally, your URI might look something like this:  
 
-因为SQLite数据被存储在本地，所以我们唯一需要提供的信心就是数据库文件的路径。换句话说，如果你想要连接本地正在运行的PostgreSQL，
+因为SQLite数据被存储在本地，所以我们唯一需要提供的信心就是数据库文件的路径。换句话说，如果你想要连接本地正在运行的PostgreSQL，你的URI看起来是这个样子：  
 
 ```
 postgresql://postgres:secretpassword@localhost:5432/blog_db
 ```
-
 
 >#### Note
 >If you're having trouble connecting to your database, try consulting the SQLAlchemy documentation on database URIs: http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html.
@@ -175,7 +180,7 @@ postgresql://postgres:secretpassword@localhost:5432/blog_db
 
 Now that we've specified how to connect to the database, let's create the object responsible for actually managing our database connections. This object is provided by the Flask-SQLAlchemy extension and is conveniently named SQLAlchemy. Open app.py and make the following additions:  
 
-现在，我们已经说明了如何连接到数据库，让我们创建
+现在，我们已经说明了如何连接到数据库，让我们创建实际上负责管理数据库连接的对象。这个对象由Flask-SQLAlchemy扩展提供，为了方便就叫做SQLAlchemy。打开app.py然后加入以下额外内容：  
 
 ```python
 from flask import Flask
@@ -244,11 +249,19 @@ class Entry(db.Model):
 
 There is a lot going on, so let's start with the imports and work our way down. We begin by importing the standard library datetime and re modules. We will be using datetime to get the current date and time, and re to do some string manipulation. The next import statement brings in the db object that we created in app.py. As you recall, the db object is an instance of the SQLAlchemy class, which is a part of the Flask-SQLAlchemy extension. The db object provides access to the classes that we need to construct our Entry model, which is just a few lines ahead.  
 
+这里发生了很多事情，所以让我们从导入开始，然后一路走下去。我们以导入标准库datetime和re模块开始。我们会使用datetime来获取当前的日期和时间，re则执行一字符串操作。结下的导入语句带来了创建在app.py中的db对象。你可以回忆一下，db对象是一个SQLAlchemy类的实例，它是Flask-SQLAlchemy扩展的一部分。db对象对我们需要构建Entry模型的类的访问，
+
 Before the Entry model, we define a helper function slugify, which we will use to give our blog entries some nice URLs (used in Chapter 3, Templates and Views). The slugify function takes a string such as A post about Flask and uses a regular expression to turn a string that is human-readable in to a URL, and so returns a-post-about-flask.  
+
+在Entry模型之前，我们定义了一个辅助函数slugify，我们使用它给我们的博客文章带来一些美观的URL（被用在了第三章，模板和视图）。slugify函数接受一个
 
 Next is the Entry model. Our Entry model is a normal class that extends db.Model. By extending db.Model, our Entry class will inherit a variety of helpers that we'll use to query the database.  
 
+接下来是Entry模型。我们的Entry模型是一个普通扩展了db.Model的类。通过扩展db.Model，我们的Entry类继承了多种可以用于数据库查询的辅助。  
+
 The attributes of the Entry model, are a simple mapping of the names and data that we wish to store in the database and are listed as follows:  
+
+Entry模型的属性被简单地映射为我们希望存储在数据库中的名称和数据，一如下面所示：  
 
 - id: This is the primary key for our database table. This value is set for us automatically by the database when we create a new blog entry, usually an auto-incrementing number for each new entry. While we will not explicitly set this value, a primary key comes in handy when you want to refer one model to another, as you'll see later in the chapter.
 - title: The title for a blog entry, stored as a String column with a maximum length of 100.
@@ -262,7 +275,7 @@ The attributes of the Entry model, are a simple mapping of the names and data th
 - slug：表示标题的用户友好URL
 - body：文章的真实内容，存储在一个文本列中。
 - created_timestamp：博客文章被创建的时间，顺过DateTime列进行存储。我们告诉SQLAlchemy使用当前时间自动地产生这个列
-- modified_timestamp：
+- modified_timestamp：博客文章更新的最后时间。不论何时保存文章，SQLAlchemy都会自动地使用当前时间更新这个列。
 
 >#### Note
 >For short strings such as titles or names of things, the String column is appropriate, but when the text may be especially long it is better to use a Text column, as we did for the entry body.
@@ -318,6 +331,8 @@ if __name__ == '__main__':
 
 Execute the script from inside the app/ directory. Make sure the virtualenv is active. If everything goes successfully, you should see no output.  
 
+从app目录执行这个脚本。确保virtualenv是激活的。如果一切顺利，你是看不到输出的。  
+
 ```shell
 (blog) $ python create_db.py 
 (blog) $
@@ -326,17 +341,22 @@ Execute the script from inside the app/ directory. Make sure the virtualenv is a
 >#### Note
 >If you encounter errors while creating the database tables, make sure you are in the app directory, with the virtualenv activated, when you run the script. Next, ensure that there are no typos in your SQLALCHEMY_DATABASE_URI setting.
 
+>#### 注释
+>当你运行这个脚本时，如果在创建数据库表时遇到了错误，请确保你位于app目录中，并使用激活了virtualenv。解析来，确保在你的SQLALCHEMY_DATABASE_URI设置中没有拼写错误。
+
 ### Working with the Entry model 使用Entry模型
 
 Let's experiment with our new Entry model by saving a few blog entries. We will be doing this from the Python interactive shell. At this stage let's install IPython, a sophisticated shell with features such as tab-completion (that the default Python shell lacks).  
 
-我们来通过保存几篇博文来体验下Entry模型。我们从Python的交互式shell中执行操作。本阶段我们来安装IPyton，一个
+我们来通过保存几篇博文来体验下Entry模型。我们从Python的交互式shell中执行操作。本阶段我们来安装IPython，一个复杂精密的拥有诸如tab补全（这也是默认Python shell所缺少的）功能的shell。  
 
 ```shell
 (blog) $ pip install ipython
 ```
 
 Now check whether we are in the app directory and let's start the shell and create a couple of entries as follows:  
+
+现在，检查我们时候在app目录中，让我们启动shell，并创建两篇文章，一如下面所示：  
 
 ```shell
 (blog) $ ipython
@@ -346,8 +366,11 @@ In []: db  # What is db?
 Out[]: <SQLAlchemy engine='sqlite:////home/charles/projects/blog/app/blog.db'>
 ```
 
->###Note
+>#### Note
 >If you are familiar with the normal Python shell but not IPython, things may look a little different at first. The main thing to be aware of is that `In[]` refers to the code you type in, and `Out[]` is the output of the commands you put into the shell.
+
+>#### 注释
+>如果你熟悉不同的Python shell而不是IPython，那么有些地方起初看来有些不同。主要注意的事情是，`In[]`引用了你输的代码，而`Out[]`则是输入到shell中的命令的输出。
 
 IPython has a neat feature that allows you to print detailed information about an object. This is done by typing in the object's name followed by a question-mark (?). Introspecting the Entry model provides a bit of information, including the argument signature and the string representing that object (known as the docstring) of the constructor.  
 
@@ -362,6 +385,8 @@ Constructor information:
 ```
 
 We can create `Entry` objects by passing column values in as the keyword-arguments. In the preceding example, it uses `**kwargs`; this is a shortcut for taking a `dict` object and using it as the values for defining the object, as shown next:  
+
+我们创建了`Entry`对象
 
 ```shell
 In []: first_entry = Entry(title='First entry', body='This is the body of my first entry.')
@@ -573,7 +598,7 @@ table:omit
 
 If you find yourself struggling with operator precedence, it's a safe bet to put parentheses around any comparison that uses ==, !=, <, <=, >, and >=.  
 
-如果你发现自己正在挣扎于运算符过程，那么
+如果你发现自己正在挣扎于运算符处理过程，那么
 
 ## Building a tagging system 构建标签系统
 
